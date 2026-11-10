@@ -20,6 +20,8 @@ const args = Object.fromEntries(
   })
 );
 const START = args.url || 'https://local-tools.app.workbuddy.host/?sharecode=RZOBS5DDCE';
+// Chrome 用的是系统代理，不读 HTTP_PROXY 环境变量；本机必须显式指定，否则打不开外网站点
+const PROXY = args.proxy ?? process.env.HTTPS_PROXY ?? process.env.HTTP_PROXY ?? '';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const DEV = join(process.cwd(), '..', '.dev');
@@ -49,6 +51,12 @@ const chrome = spawn(
     '--no-first-run',
     '--no-default-browser-check',
     '--disable-features=Translate',
+    // 证书还没签发时用 --ignore-cert 先验功能；证书下来后不要带这个参数，否则测不出证书问题
+    ...(args['ignore-cert'] ? ['--ignore-certificate-errors'] : []),
+    // 本地地址不能走代理，否则 127.0.0.1 也会被转发出去
+    ...(PROXY && !START.includes('127.0.0.1') && !START.includes('localhost')
+      ? [`--proxy-server=${PROXY.replace(/^https?:\/\//, 'http://')}`]
+      : []),
     START,
   ],
   { stdio: 'ignore' }
