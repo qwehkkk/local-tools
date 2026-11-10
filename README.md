@@ -306,7 +306,7 @@ Phase 0 实测过浏览器端跑 LLM（见 `../Phase0-实测报告.md`），结�
 
 | 位置 | 地址 | 说明 |
 | --- | --- | --- |
-| 正式站 | **https://tools.toolona.com/** | GitHub Pages，已上线；HTTPS 证书由 GitHub 自动签发中 |
+| 正式站 | **https://tools.toolona.com/** | GitHub Pages，HTTPS 已启用并强制跳转，公开可访问 |
 | 仓库 | https://github.com/qwehkkk/local-tools | public，`main` 分支根目录 |
 | 内部预览 | https://local-tools.app.workbuddy.host/?sharecode=RZOBS5DDCE | 带 sharecode 的私链，403 挡住爬虫，别拿它做推广 |
 
@@ -327,19 +327,28 @@ npm run push           # 备选：git 协议不通时走 GitHub API
 
 ### DNS 与 HTTPS
 
-`tools.toolona.com` 已配好：Cloudflare 里一条 **CNAME → `qwehkkk.github.io`**，代理状态**仅 DNS（灰云）**。
+已全部打通，当前状态：
 
-实测解析链正确（CNAME → `qwehkkk.github.io` → `185.199.108/109/110/111.153` + IPv6），
-`toolona.com` 没有 CAA 记录，不存在阻止签发的因素。
+- **Cloudflare**：`tools` 一条 CNAME → `qwehkkk.github.io`，代理状态**仅 DNS（灰云）**。
+  实测解析链正确（CNAME → `qwehkkk.github.io` → `185.199.108/109/110/111.153` + IPv6），
+  `toolona.com` 没有 CAA 记录。
+- **GitHub Pages**：证书已签发，**Enforce HTTPS 已开启**，`http://` 会 301 跳到 `https://`。
+- `npm run verify:live -- --url=https://tools.toolona.com/` 在真实证书校验下 34 项全绿。
 
-**证书由 GitHub 自动签发**，DNS 校验通过后开始，通常几分钟，最长可能到 24 小时。
-签发前访问 `https://` 会报证书错误（GitHub 返回的是它自己的证书，域名对不上），这是正常现象。
+**证书卡住不签怎么办**（这次踩到了，值得记）：
 
-证书下来后：
+DNS 配好后 GitHub 一直不申请证书，把 Pages 的自定义域**置空再重新设回**即可重新排队：
 
-1. 到仓库 Settings → Pages 勾选 **Enforce HTTPS**（或 PUT `/repos/{owner}/{repo}/pages` 带 `https_enforced: true`）。
-2. 之后跑 `npm run verify:live` 时不带 `--ignore-cert`，能真正验证证书链。
-3. 如果超过一天还没签发，去 Settings → Pages 把自定义域删掉保存、再填回去，会重新触发申请。
+```js
+PUT /repos/{owner}/{repo}/pages  { "cname": null }
+PUT /repos/{owner}/{repo}/pages  { "cname": "tools.toolona.com" }
+```
+
+等同于在 Settings → Pages 里删掉域名保存、再填回去。本次约 90 秒就签出来了。
+副作用：GitHub 会自己提交两个 commit（`Delete CNAME` / `Create CNAME`），
+且它写出的 CNAME 文件**没有结尾换行**，与你本地版本会有 1 字节差异 —— `git reset --hard origin/main` 对齐即可。
+
+证书下来后再开强制 HTTPS（`https_enforced: true`），否则拿不到证书时开不了。
 
 仓库根目录的 `CNAME` 文件（内容就是域名）不要删，删了自定义域会掉。
 
