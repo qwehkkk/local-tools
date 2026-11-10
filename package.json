@@ -12,6 +12,7 @@
     "verify:pdf": "node tools/verify-pdf.mjs",
     "verify:site": "node tools/verify-site.mjs",
     "verify:live": "node tools/verify-live.mjs",
+    "push": "node tools/push-via-api.mjs",
     "set-domain": "node tools/set-domain.mjs",
     "verify:all": "node tools/verify-site.mjs && node tools/verify.mjs && node tools/verify-csv.mjs && node tools/verify-image.mjs && node tools/verify-pdf.mjs"
   }

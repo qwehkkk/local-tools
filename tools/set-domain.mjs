@@ -84,6 +84,8 @@ writeFileSync(
     '# 开发文件，不是页面',
     'Disallow: /tests/',
     'Disallow: /tools/verify',
+    'Disallow: /tools/push-via-api',
+    'Disallow: /tools/set-domain',
     'Disallow: /tools/serve.mjs',
     'Disallow: /tools/shot.mjs',
     'Disallow: /tools/diag.mjs',

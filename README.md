@@ -304,15 +304,36 @@ Phase 0 实测过浏览器端跑 LLM（见 `../Phase0-实测报告.md`），结�
 
 纯静态，整目录直接发布，无需构建命令。
 
-当前线上：**https://local-tools.app.workbuddy.host/?sharecode=RZOBS5DDCE**（三个工具全部可用）。
+| 位置 | 地址 | 说明 |
+| --- | --- | --- |
+| 正式站 | **https://tools.toolona.com/** | GitHub Pages，公开可访问，爬虫能进 |
+| 仓库 | https://github.com/qwehkkk/local-tools | public，`main` 分支根目录 |
+| 内部预览 | https://local-tools.app.workbuddy.host/?sharecode=RZOBS5DDCE | 带 sharecode 的私链，403 挡住爬虫，别拿它做推广 |
 
-> ⚠️ **这个地址是带 sharecode 的私链，不是公开网站。** 不带 sharecode 或没有 cookie 的请求一律 403，
-> 搜索引擎爬虫也一样抓不到 —— 也就是说这里**不会有任何自然搜索流量**，只能靠把链接发给别人。
-> `canonical` / `sitemap` 是为将来挂到自有域名准备的，在私链上不起作用（爬虫进不来）。
-> 想拿到真实市场反馈，必须部署到公开域名（如 `toolona.com` 或 `tools.toolona.com`），
-> 然后 `npm run set-domain -- https://新域名` 更新一次。
+### 怎么发新版本
 
-要注意的四件事：
+```bash
+npm run verify:all     # 本地五套验证（发布前必跑）
+git add -A && git commit -m "…"
+npm run push           # 用 GitHub API 推，代替 git push（原因见下）
+```
+
+**为什么不用 `git push`**：本机出网代理只放行 `api.github.com`，连 `github.com:443`
+会报 `CONNECT tunnel failed, response 502`。`tools/push-via-api.mjs` 走 Git Data API
+上传 blob → 建 tree/commit → 更新 ref，效果等价。
+
+代价：远程 commit 的 SHA 和本地不同（本地对象库没有那个 commit）。换到能直连的机器上
+首次 push 前先 `git fetch && git reset --hard origin/main`。远程历史被有意压成两个 commit
+（初始化 + 当前版本），中间版本不进历史。
+
+### DNS
+
+`tools.toolona.com` 需要在 Cloudflare 加一条 **CNAME → `qwehkkk.github.io`**，
+代理状态选 **仅 DNS（灰云）**。GitHub 只有在能直接解析到它的情况下才能签发 HTTPS 证书；
+证书下来后可以在 GitHub 仓库 Settings → Pages 勾选 Enforce HTTPS。
+仓库根目录的 `CNAME` 文件（内容就是域名）不要删，删了自定义域会掉。
+
+### 四条注意事项
 
 1. **换域名必须用脚本，不要手改**：`npm run set-domain -- https://新域名[/子路径]`。
    它会重写四个页面的 `canonical`、重新生成 `sitemap.xml` 和 `robots.txt`（含 Sitemap 声明）。
