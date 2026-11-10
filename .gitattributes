@@ -1,1 +1,3 @@
-# placeholder
+# 仓库里统一存 LF。Windows 下默认会转 CRLF，虽然浏览器不在乎，
+# 但会让 diff 噪音变大，Linux 上跑脚本也可能被 \r 坑到。
+* text=auto eol=lf

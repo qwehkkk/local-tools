@@ -1,0 +1,15 @@
+# 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+
+# 依赖与日志
+node_modules/
+*.log
+
+# 开发产物兜底（正常都在仓库外的工作区 .dev/ 里）
+.dev/

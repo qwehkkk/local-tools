@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本地 PDF 拆合 · 合并、拆页、抽页，文件不上传</title>
+<meta name="description" content="在浏览器里合并多个 PDF、把 PDF 拆成一页一个文件、按页码范围抽取页面。文件不上传到任何服务器，断网也能用。">
+<link rel="canonical" href="https://tools.toolona.com/tools/pdf-toolkit/">
+<meta name="robots" content="index, follow">
+<link rel="stylesheet" href="../../assets/ui.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "本地 PDF 拆合",
+  "description": "在浏览器内合并、拆分、抽取 PDF 页面，文件不上传服务器。",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div>
+      <a class="backlink" href="../../"><span>←</span>全部工具</a>
+      <h1>本地 PDF 拆合</h1>
+      <p>合并、拆页、按范围抽页。PDF 不上传，全部在你自己的浏览器里完成。</p>
+    </div>
+    <div class="privacy">
+      <span class="dot"></span>上传 <b id="netSent">0</b> 字节 · 引擎 <b id="engineSize">未加载</b>
+    </div>
+  </div>
+
+  <div class="drop" id="drop">
+    <div class="drop-icon">＋</div>
+    <div class="drop-title">把 PDF 拖到这里，或 <button type="button" class="linkbtn" id="pick">选择文件</button></div>
+    <div class="drop-sub">可多选。列表顺序就是合并顺序，可以上下调整</div>
+    <input type="file" id="files" accept="application/pdf,.pdf" multiple hidden>
+  </div>
+
+  <div class="settings">
+    <div class="srow">
+      <div class="seg" id="modeSeg">
+        <button type="button" data-mode="merge" aria-pressed="true">合并成一个 PDF</button>
+        <button type="button" data-mode="split" aria-pressed="false">拆分打包</button>
+      </div>
+
+      <div class="inline" id="splitCtrl" hidden>
+        <select id="splitMode">
+          <option value="each">每页一个文件</option>
+          <option value="range">每 N 页一份</option>
+        </select>
+      </div>
+
+      <div class="inline" id="perCtrl" hidden>
+        <input type="number" id="per" min="2" max="200" step="1" value="2">
+        <span class="val">页 / 份</span>
+      </div>
+    </div>
+
+    <div class="srow">
+      <span class="srow-note" id="modeNote"></span>
+    </div>
+  </div>
+
+  <div class="pane listpane">
+    <header>
+      <span>文件列表</span>
+      <span class="tip" id="listTip">还没有文件</span>
+    </header>
+    <div class="rows" id="rows">
+      <div class="empty">还没有 PDF。拖进来以后，每一行右边可以填页码范围，比如 <code>1-3,5</code>。</div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="counter">
+      共 <b id="nFiles">0</b> 个文件 · 选中 <b id="nPages">0</b> 页 · 将生成 <b id="nOut">0</b> 个文件
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" id="clear" disabled>清空</button>
+    <button class="btn primary" id="run" disabled>生成并下载</button>
+  </div>
+
+  <div class="note">
+    <b>怎么验证 PDF 真的没上传：</b>按 F12 → Network（网络）面板 → 清空记录 → 拖入 PDF 并点「生成」。
+    你会看到列表里只有 <code>pdf-lib.esm.min.js</code> 这一条本站资源（引擎，约 511 KB，只加载一次），
+    <b>没有任何一条携带你文件的请求</b>。断网后这个页面照样能完整工作 —— 这一点比任何隐私承诺都硬。
+  </div>
+
+  <div class="note">
+    <b>几件如实说明的限制：</b>
+    <ul>
+      <li><b>加密 PDF 不支持</b>（打开要密码的那种）。浏览器里没有合规的密码输入通道，会明确报错而不是假装成功。</li>
+      <li><b>不保留书签、目录、表单、注释</b>。只搬页面本身，表单域和数字签名会失效。</li>
+      <li><b>页面顺序只能按文件排</b>：每个文件内部保持原有页序，不能把 A 文件的第 3 页插到 B 文件的第 1 页之前。需要这种精细编排请用桌面软件。</li>
+      <li><b>输出体积通常接近原文件之和</b>。这里不做重新压缩，也不降画质 —— 拆合工具不该偷偷动你的内容。</li>
+      <li>单个文件超过 200 MB 或页数过多时可能因内存不足失败，会报错而不是悄悄跳过。</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <b>为什么值得做成本地版：</b>合同、病历、工资单、身份证扫描件是最常被合并和拆分的 PDF。
+    现有在线工具几乎都要你先上传 —— 等于把最不该外发的东西先发给陌生人，再听对方承诺「24 小时后删除」。
+    这里不依赖任何人的承诺。
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

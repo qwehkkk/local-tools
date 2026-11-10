@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本地工具 · 文件不上传，直接在浏览器里处理</title>
+<meta name="description" content="一组在浏览器本地运行的小工具：脱敏、去水印、格式转换等。文件不上传服务器，断网也能用，打开开发者工具就能验证。">
+<link rel="canonical" href="https://tools.toolona.com/">
+<meta name="robots" content="index, follow">
+<link rel="stylesheet" href="./assets/ui.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "本地工具",
+  "description": "在浏览器内本地处理的工具集，文件不上传服务器。"
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div>
+      <h1>本地工具</h1>
+      <p>文件不上传、不排队、断网也能用。因为压根没有服务器参与。</p>
+    </div>
+    <div class="privacy"><span class="dot"></span>全部在浏览器内运行</div>
+  </div>
+
+  <div class="cards">
+
+    <a class="card" href="./tools/pii-mask/">
+      <div class="card-top">
+        <span class="card-title">本地脱敏</span>
+        <span class="tag">可用</span>
+      </div>
+      <p>把身份证号、手机号、银行卡、邮箱、地址自动打码。适合把合同、病历、客户名单发给外部前先处理一遍。用「占位符」方式脱敏时，会生成映射表，之后随时能还原回来。</p>
+      <div class="card-foot"><span>无需下载模型</span><span>秒开</span><span>可还原</span></div>
+    </a>
+
+    <a class="card" href="./tools/image-shrink/">
+      <div class="card-top">
+        <span class="card-title">本地图片压缩</span>
+        <span class="tag">可用</span>
+      </div>
+      <p>批量压缩图片、转成 WebP，可以限制最大边长，也可以指定目标体积。适合发邮件、传素材、上架商品前先把图片瘦一圈。</p>
+      <div class="card-foot"><span>无需下载模型</span><span>可批量</span><span>打包下载</span></div>
+    </a>
+
+    <a class="card" href="./tools/pdf-toolkit/">
+      <div class="card-top">
+        <span class="card-title">本地 PDF 拆合</span>
+        <span class="tag">可用</span>
+      </div>
+      <p>合并多个 PDF、拆成一页一个文件、按页码范围抽页。合同、发票、扫描件的合并与拆分都不经过服务器。首次处理时才加载 PDF 引擎。</p>
+      <div class="card-foot"><span>可批量</span><span>打包下载</span><span>上传 0 字节</span></div>
+    </a>
+
+    <!-- 只放真正能用的工具。占位的「开发中」卡片点不动，会让整站像没做完，
+         等第四个工具（本地去水印）真能用时再按上面三个的样子加一张 <a class="card">。 -->
+
+  </div>
+
+  <div class="note">
+    <b>为什么做成「本地」而不是普通在线工具：</b>
+    <ul>
+      <li>普通在线工具，你粘贴一次身份证号，它就已经在别人的服务器日志里了 —— 哪怕承诺「不保存」。</li>
+      <li>这里的所有处理都在你的浏览器内存里完成，<b>网络面板里不会出现任何一条携带你文件的请求</b>。</li>
+      <li>代价是能力有限：本地能跑的多是规则、编解码和轻量模型，做不了大模型那种复杂推理。</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

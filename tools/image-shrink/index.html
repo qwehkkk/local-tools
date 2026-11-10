@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本地图片压缩 · 批量转 WebP，图片不上传</title>
+<meta name="description" content="在浏览器里批量压缩图片、转成 WebP。图片不上传到任何服务器，断网也能用，打开开发者工具的网络面板就能验证。">
+<link rel="canonical" href="https://tools.toolona.com/tools/image-shrink/">
+<meta name="robots" content="index, follow">
+<link rel="stylesheet" href="../../assets/ui.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "本地图片压缩",
+  "description": "在浏览器内批量压缩图片并转换为 WebP，图片不上传服务器。",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div>
+      <a class="backlink" href="../../"><span>←</span>全部工具</a>
+      <h1>本地图片压缩</h1>
+      <p>批量压缩、转 WebP。图片不上传，压缩在你自己的浏览器里完成。</p>
+    </div>
+    <div class="privacy"><span class="dot"></span>本页网络请求：<b id="netCount">0</b> 次</div>
+  </div>
+
+  <div class="drop" id="drop">
+    <div class="drop-icon">＋</div>
+    <div class="drop-title">把图片拖到这里，或 <button type="button" class="linkbtn" id="pick">选择文件</button></div>
+    <div class="drop-sub">JPG · PNG · WebP · GIF · BMP · AVIF　　可多选，会依次处理</div>
+    <input type="file" id="files" accept="image/*" multiple hidden>
+  </div>
+
+  <div class="settings">
+    <div class="srow">
+      <label class="field">输出格式
+        <select id="fmt">
+          <option value="image/webp" selected>WebP（推荐）</option>
+          <option value="image/jpeg">JPEG</option>
+          <option value="image/png">PNG</option>
+          <option value="auto">保持原格式</option>
+        </select>
+      </label>
+
+      <label class="field">最大边长
+        <select id="maxEdge">
+          <option value="0">不缩放</option>
+          <option value="2560">2560 px</option>
+          <option value="1920" selected>1920 px</option>
+          <option value="1280">1280 px</option>
+          <option value="800">800 px</option>
+        </select>
+      </label>
+
+      <div class="seg" id="modeSeg">
+        <button type="button" data-mode="quality" aria-pressed="true">按质量</button>
+        <button type="button" data-mode="size" aria-pressed="false">按目标大小</button>
+      </div>
+
+      <div class="inline" id="qualityCtrl">
+        <input type="range" id="quality" min="30" max="95" step="1" value="80">
+        <span class="val" id="qualityVal">80</span>
+      </div>
+
+      <div class="inline" id="sizeCtrl" hidden>
+        <input type="number" id="targetKB" min="10" max="8000" step="10" value="200">
+        <span class="val">KB</span>
+      </div>
+    </div>
+
+    <div class="srow">
+      <label class="check"><input type="checkbox" id="keepSmaller" checked> 结果比原图大时保留原图</label>
+      <span class="srow-note" id="fmtNote"></span>
+    </div>
+  </div>
+
+  <div class="pane listpane">
+    <header>
+      <span>图片列表</span>
+      <span class="tip" id="listTip">还没有图片</span>
+    </header>
+    <div class="rows" id="rows">
+      <div class="empty">还没有图片。拖进来就自动开始处理。</div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="counter">
+      共 <b id="nTotal">0</b> 张 · 原始 <b id="sumIn">0 B</b> → 输出 <b id="sumOut">0 B</b>
+      · <span id="sumSaveWrap">节省 <b id="sumSave">0 B</b></span>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" id="clear" disabled>清空</button>
+    <button class="btn primary" id="downloadAll" disabled>全部下载</button>
+  </div>
+
+  <div class="note">
+    <b>怎么验证图片真的没上传：</b>按 F12 打开开发者工具 → 切到 Network（网络）面板 → 拖入一张图片。
+    你会看到面板里没有任何一条由这张图片产生的请求。右上角的计数也是同一个意思，但它只是页面自己数自己，
+    真正可信的是 Network 面板。断网状态下这个页面同样能完整工作。
+  </div>
+
+  <div class="note">
+    <b>几件如实说明的限制：</b>
+    <ul>
+      <li><b>HEIC / HEIF 不支持</b>（iPhone 的默认格式）。浏览器本身解不了，需要先在手机或系统里转成 JPG。</li>
+      <li><b>GIF 动图只处理第一帧</b>，动画会丢失。要做动图请另找工具。</li>
+      <li><b>PNG 是无损格式</b>，质量参数对它无效，「按目标大小」也压不下去，只能靠缩小边长。</li>
+      <li><b>JPEG 没有透明通道</b>，原图的透明区域会被填成白色。需要保留透明请选 WebP 或 PNG。</li>
+      <li>超大图（单边超过 8000 px）可能因内存不足失败，会如实报错而不是静默跳过。</li>
+      <li>压缩是有损的，反复压缩会持续掉画质。建议始终从原图重新压缩。</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <b>为什么不做上传：</b>图片里最常见的就是人脸、证件、家庭住址、车牌。上传到服务器再「承诺不留存」，
+    和压根不上传是两件事 —— 前者依赖对方守规矩，后者不依赖任何人的承诺。
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

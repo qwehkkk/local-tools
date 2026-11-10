@@ -1,0 +1,18 @@
+{
+  "name": "local-tools",
+  "private": true,
+  "type": "module",
+  "description": "浏览器端本地处理的工具集 —— 文件不出本机",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "serve": "node tools/serve.mjs",
+    "fixtures": "python tools/make-fixtures.py ../.dev/fixtures && python tools/make-pdf-fixtures.py ../.dev/fixtures",
+    "verify:pii": "node tools/verify.mjs",
+    "verify:img": "node tools/verify-image.mjs",
+    "verify:pdf": "node tools/verify-pdf.mjs",
+    "verify:site": "node tools/verify-site.mjs",
+    "verify:live": "node tools/verify-live.mjs",
+    "set-domain": "node tools/set-domain.mjs",
+    "verify:all": "node tools/verify-site.mjs && node tools/verify.mjs && node tools/verify-csv.mjs && node tools/verify-image.mjs && node tools/verify-pdf.mjs"
+  }
+}
