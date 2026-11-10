@@ -7,10 +7,8 @@
  * 只读文件系统，不起浏览器。刻意不依赖任何包。
  */
 import { readFileSync, existsSync, statSync } from 'node:fs';
-import { join, dirname, resolve, relative, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+import { join, dirname, resolve, relative } from 'node:path';
+import { root, listPages, routeOf } from './pages.mjs';
 let pass = 0;
 let fail = 0;
 
@@ -26,14 +24,14 @@ function ok(cond, msg) {
 
 /* ---------- 收集页面 ---------- */
 
-const pages = [];
-// 目录结构是固定的三层，直接枚举比递归省事，也避免把 tests/ 里的东西算进来
-for (const rel of ['index.html', 'tools/pii-mask/index.html', 'tools/image-shrink/index.html', 'tools/pdf-toolkit/index.html']) {
-  pages.push(rel);
-}
+// 清单来自 tools/pages.mjs（与 set-domain.mjs 共用），加页面不用改这里
+const pages = listPages();
 
-// pages 里是 POSIX 风格路径，路由要以 / 切分（Windows 的 sep 是 \，不能直接用）
-const routeOf = (rel) => '/' + rel.replace(/(^|\/)index\.html$/, '$1');
+/** 页面内指向站点根的相对前缀：'index.html' → './'，'tools/x/index.html' → '../../' */
+const prefixOf = (rel) => {
+  const depth = rel.split('/').length - 1;
+  return depth === 0 ? './' : '../'.repeat(depth);
+};
 
 /* ---------- 1. 页面存在 ---------- */
 
@@ -81,7 +79,10 @@ console.log('\n=== 返回入口 ===');
 for (const rel of pages) {
   if (rel === 'index.html') continue;
   const html = readFileSync(join(root, rel), 'utf8');
-  ok(/class="backlink"[^>]*href="\.\.\/\.\.\/"/.test(html), `${rel} 有返回列表的链接`);
+  const m = html.match(/class="backlink"[^>]*href="([^"]+)"/);
+  // 不同层级的页面，回根目录的相对路径不一样（../ 或 ../../）。
+  // 以前这里硬编码成 ../../，加一级页面就会误报。
+  ok(!!m && m[1] === prefixOf(rel), `${rel} 有返回列表的链接（${prefixOf(rel)}）`);
 }
 
 /* ---------- 4. canonical 自指且带尾斜杠 ---------- */
@@ -135,13 +136,73 @@ if (!existsSync(rbPath)) {
 
 /* ---------- 7. 页面不引用任何外部资源 ---------- */
 
+// 「零外部请求」是这个站唯一的核心卖点，必须当断言守。
+// 注意只算标签上的 src/href（<link>、<script>、<img>），<a> 是用户点了才跳转的锚点，
+// 不会产生任何自动请求 —— 页脚链到 GitHub 源码不能因此判失败。
 console.log('\n=== 零外部依赖 ===');
 for (const rel of pages) {
   const html = readFileSync(join(root, rel), 'utf8');
-  const external = [...html.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)]
-    .map((m) => m[1])
+  const external = [...html.matchAll(/<([a-zA-Z][\w-]*)\b[^>]*?\s(?:src|href)="(https?:\/\/[^"]+)"/g)]
+    .filter((m) => m[1].toLowerCase() !== 'a')
+    .map((m) => m[2])
     .filter((u) => !u.startsWith(canonHost));
   ok(external.length === 0, `${rel} 没有外域资源引用${external.length ? '：' + external.join(', ') : ''}`);
+}
+
+/* ---------- 8. 页面骨架 ---------- */
+
+console.log('\n=== 页面骨架 ===');
+for (const rel of pages) {
+  const html = readFileSync(join(root, rel), 'utf8');
+  const p = prefixOf(rel);
+
+  ok([...html.matchAll(/<h1\b/g)].length === 1, `${rel} 有且只有一个 h1`);
+  ok([...html.matchAll(/<h2\b/g)].length > 0, `${rel} 用了 h2 分节`);
+
+  const desc = (html.match(/<meta name="description" content="([^"]*)"/) ?? [])[1];
+  ok(!!desc && desc.length >= 40 && desc.length <= 160, `${rel} 有 meta description 且长度 ${desc ? desc.length : 0} 字（40–160）`);
+
+  // 分享出去要有图、要指对地址，否则微信/推特/群里都是一片空白
+  ok(html.includes(`<link rel="icon" href="${p}assets/favicon.svg"`), `${rel} 声明了 favicon`);
+  ok(/property="og:image" content="https?:\/\/[^"]+"/.test(html), `${rel} 声明了 og:image（绝对地址）`);
+  ok(/property="og:url" content="https?:\/\/[^"]+"/.test(html), `${rel} 声明了 og:url`);
+
+  // og:url 必须与 canonical 完全一致，否则分享卡片指向的地址和搜索引擎认的不是同一个
+  const ogUrl = (html.match(/<meta property="og:url" content="([^"]*)"/) ?? [])[1];
+  const canon = (html.match(/<link rel="canonical" href="([^"]*)"/) ?? [])[1];
+  ok(ogUrl === canon, `${rel} 的 og:url 与 canonical 一致`);
+
+  // 卡片图必须真的存在，否则分享出去是空白 —— 这种错在本地看不出来
+  const ogImg = (html.match(/<meta property="og:image" content="([^"]*)"/) ?? [])[1];
+  if (ogImg) {
+    const p2 = new URL(ogImg).pathname.replace(/^\//, '');
+    ok(existsSync(join(root, p2)), `${rel} 的 og:image 文件存在（${p2}）`);
+  }
+
+  // 页脚导航：所有页面都要能横向走到隐私说明和关于，
+  // 否则这两个页面只能靠 sitemap 被看到，内部一条链接都没有。
+  // 页面自己那一项不用自指，跳过。
+  ok(rel.startsWith('privacy/') || html.includes(`href="${p}privacy/"`), `${rel} 页脚链到隐私说明`);
+  ok(rel.startsWith('about/') || html.includes(`href="${p}about/"`), `${rel} 页脚链到关于`);
+}
+
+/* ---------- 9. 结构化数据可解析 ---------- */
+
+console.log('\n=== 结构化数据 ===');
+for (const rel of pages) {
+  const html = readFileSync(join(root, rel), 'utf8');
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  ok(blocks.length > 0, `${rel} 有 JSON-LD${blocks.length ? `（${blocks.length} 块）` : ''}`);
+  let parsed = 0;
+  for (const b of blocks) {
+    try {
+      const j = JSON.parse(b);
+      if (j['@context'] && j['@type']) parsed++;
+    } catch {
+      /* 下面统一判 */
+    }
+  }
+  ok(parsed === blocks.length, `${rel} 的 JSON-LD 全部能 JSON.parse 且有 @context/@type`);
 }
 
 /* ---------- 汇总 ---------- */

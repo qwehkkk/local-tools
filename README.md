@@ -39,6 +39,8 @@ npm run set-domain -- https://toolona.com/tools   # 换域名：canonical + site
 ```
 local-tools/
 ├── index.html                    # 专区首页（工具列表）
+├── privacy/                      # 隐私说明（站点的立命之本，也是广告审核的前置）
+├── about/                        # 关于：为什么做成本地版、不做什么
 ├── tools/pii-mask/               # 工具一：本地脱敏（「脱敏」「还原」两个页签）
 ├── tools/image-shrink/           # 工具二：本地图片压缩
 ├── tools/pdf-toolkit/            # 工具三：本地 PDF 拆合
@@ -48,6 +50,8 @@ local-tools/
 │   ├── zip.js                    # 最小 ZIP 写入器（store 模式，无依赖）
 │   ├── net-counter.js            # 零上传/零请求计数（三个工具共用）
 │   ├── ui.css                    # 共享样式（深色模式、窄屏适配、卡片/列表/拖放区）
+│   ├── favicon.svg               # 图标（锁）
+│   ├── og.png                    # 分享预览图 1200×630，由 tools/make-og.py 生成
 │   └── vendor/pdf-lib.esm.min.js # 第三方：pdf-lib 1.17.1（唯一依赖，见「上线」一节）
 ├── tests/
 │   ├── rules.test.mjs            # 规则引擎 33 条
@@ -55,6 +59,7 @@ local-tools/
 │   └── pdf-range.test.mjs        # 页码解析与计划 15 条
 └── tools/                        # 开发脚本
     ├── serve.mjs                 # 静态服务器
+    ├── pages.mjs                 # 页面清单（set-domain / verify-site 共用，唯一真源）
     ├── verify-site.mjs           # 全站静态检查（无浏览器，秒级）
     ├── verify.mjs                # 脱敏 CDP 端到端验证
     ├── verify-csv.mjs            # CSV 导入还原全链路
@@ -62,6 +67,7 @@ local-tools/
     ├── verify-pdf.mjs            # PDF 工具 CDP 端到端 + pypdf 反查
     ├── set-domain.mjs            # 换域名（canonical + sitemap + robots）
     ├── make-fixtures.py          # 生成真实测试图（渐变+噪声，避免纯色作弊）
+    ├── make-og.py                # 生成分享预览图 assets/og.png（改文案后重跑）
     ├── make-pdf-fixtures.py      # 生成测试 PDF（每页尺寸不同，可反查页序）
     ├── shot.mjs                  # 界面截图
     └── diag.mjs                  # 布局诊断 / 任意量测
@@ -352,11 +358,13 @@ PUT /repos/{owner}/{repo}/pages  { "cname": "tools.toolona.com" }
 
 仓库根目录的 `CNAME` 文件（内容就是域名）不要删，删了自定义域会掉。
 
-### 四条注意事项
+### 五条注意事项
 
 1. **换域名必须用脚本，不要手改**：`npm run set-domain -- https://新域名[/子路径]`。
-   它会重写四个页面的 `canonical`、重新生成 `sitemap.xml` 和 `robots.txt`（含 Sitemap 声明）。
-   改完跑 `npm run verify:site`，会校验 canonical 是否自指、sitemap 是否覆盖全部页面。
+   它会重写全部页面的 `canonical`、`og:url`、`og:image`，再重新生成 `sitemap.xml` 和 `robots.txt`。
+   页面清单来自 `tools/pages.mjs`，加页面只改那一处（以前清单硬编码在两个脚本里，加页面必漏）。
+   改完跑 `npm run verify:site`，会校验 canonical 自指、og:url 与 canonical 一致、
+   og:image 文件真实存在、sitemap 覆盖全部页面。
 2. **发布是整个目录上传，静态托管没有排除机制**。也就是说 `tests/`、`tools/*.mjs`、
    `README.md`、`package.json` 在线上是能访问到的。它们不含任何密钥或用户数据，
    但 `robots.txt` 已经把这些路径 Disallow 掉，避免被当成页面收录。

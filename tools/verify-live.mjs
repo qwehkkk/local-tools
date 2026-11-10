@@ -2,7 +2,8 @@
  * 线上回归：真实 Chrome 打开已发布的站点，走一遍用户路径。
  *
  *   node tools/verify-live.mjs
- *   node tools/verify-live.mjs --url=https://example.com/?sharecode=XXXX
+ *   node tools/verify-live.mjs                          # 默认打正式站
+ *   node tools/verify-live.mjs --url=http://127.0.0.1:5180/   # 本地预演
  *
  * 和 verify-*.mjs 的分工：那几个用本地服务测功能，这个只测「线上这一份」
  * 能不能被点开、能不能在页面之间走通、控制台干不干净。
@@ -19,7 +20,9 @@ const args = Object.fromEntries(
     return m ? [m[1], m[2] || 'true'] : [a, 'true'];
   })
 );
-const START = args.url || 'https://local-tools.app.workbuddy.host/?sharecode=RZOBS5DDCE';
+// 默认打正式站。以前默认的是带 sharecode 的私有预览地址，那个地址 403 挡爬虫，
+// 而且已经不再代表线上真实状态，容易让人以为验证通过了。
+const START = args.url || 'https://tools.toolona.com/';
 // Chrome 用的是系统代理，不读 HTTP_PROXY 环境变量；本机必须显式指定，否则打不开外网站点
 const PROXY = args.proxy ?? process.env.HTTPS_PROXY ?? process.env.HTTP_PROXY ?? '';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -242,7 +245,55 @@ await sleep(800);
 const pdfReqs = requests.filter((u) => u.includes('pdf-lib')).length;
 ok(pdfReqs === 0, `打开 PDF 页时没有请求 pdf-lib，实际 ${pdfReqs} 次`);
 
-/* ---------- 4. 窄屏 ---------- */
+/* ---------- 4. 页脚通往两个说明页 ---------- */
+
+// 这两个页面只能从页脚进去。如果页脚链接写错，它们在站内就是不可达的 ——
+// 而 sitemap 和 canonical 都还是对的，纯静态检查发现不了。
+console.log('\n=== 页脚导航 ===');
+for (const [label, route] of [
+  ['隐私说明', '/privacy/'],
+  ['关于', '/about/'],
+]) {
+  const clicked = await evalJS(`
+    (() => {
+      const a = [...document.querySelectorAll('footer.foot a')].find((x) => x.textContent.trim() === ${JSON.stringify(label)});
+      if (!a) return false;
+      a.click();
+      return true;
+    })()
+  `);
+  ok(clicked, `页脚有「${label}」入口`);
+  const arrived = await waitFor(`location.pathname.endsWith(${JSON.stringify(route)}) && document.styleSheets.length > 0`);
+  ok(arrived, `进入 ${route} 且样式已应用`);
+
+  const page = await evalJS(`
+    (() => ({
+      h1: document.querySelector('h1')?.textContent.trim(),
+      canon: document.querySelector('link[rel=canonical]')?.href,
+      desc: document.querySelector('meta[name=description]')?.content?.length || 0,
+    }))()
+  `);
+  ok(page.h1 === label, `${route} 的标题是「${label}」（实际「${page.h1}」）`);
+  ok(!!page.canon && page.canon.endsWith(route), `${route} 的 canonical 自指`);
+  ok(page.desc >= 40, `${route} 有 meta description（${page.desc} 字）`);
+
+  await evalJS(`document.querySelector('a.backlink').click(), true`);
+  await waitFor(`document.querySelector('h1')?.textContent.trim() === '本地工具'`);
+}
+
+// 这一段结束在首页，但后面的窄屏检查是在 PDF 页上做的 —— 回到 PDF 页，
+// 否则下一步的 backlink 点击会拿到 null（首页没有返回入口）。
+await evalJS(`
+  (() => {
+    [...document.querySelectorAll('.card[href]')]
+      .find((a) => a.getAttribute('href') === './tools/pdf-toolkit/')
+      .click();
+    return true;
+  })()
+`);
+await waitFor(`document.querySelector('h1')?.textContent.trim() === '本地 PDF 拆合'`);
+
+/* ---------- 5. 窄屏 ---------- */
 
 console.log('\n=== 390px 窄屏 ===');
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 780, deviceScaleFactor: 2, mobile: true });
@@ -261,6 +312,22 @@ const homeOverflow = await evalJS(`
   (() => ({ viewport: window.innerWidth, doc: document.documentElement.scrollWidth }))()
 `);
 ok(homeOverflow.doc <= homeOverflow.viewport, `首页无横向溢出（${homeOverflow.doc} ≤ ${homeOverflow.viewport}）`);
+
+// 正文页有长列表和长英文单词（localStorage / IndexedDB），最容易把窄屏撑破
+await evalJS(`
+  (() => {
+    [...document.querySelectorAll('footer.foot a')].find((a) => a.textContent.trim() === '隐私说明').click();
+    return true;
+  })()
+`);
+await waitFor(`location.pathname.endsWith('/privacy/')`);
+const proseOverflow = await evalJS(`
+  (() => ({ viewport: window.innerWidth, doc: document.documentElement.scrollWidth }))()
+`);
+ok(proseOverflow.doc <= proseOverflow.viewport, `隐私说明页无横向溢出（${proseOverflow.doc} ≤ ${proseOverflow.viewport}）`);
+
+await evalJS(`document.querySelector('a.backlink').click(), true`);
+await waitFor(`document.querySelector('h1')?.textContent.trim() === '本地工具'`);
 await send('Emulation.clearDeviceMetricsOverride');
 
 /* ---------- 5. 控制台与网络 ---------- */

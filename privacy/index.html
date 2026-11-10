@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>隐私说明 · 你的文件到底去了哪里</title>
+<meta name="description" content="这个站点没有接收文件的服务器。说明文件与文本在浏览器里如何处理、托管方能看到什么、以及你自己怎么一步步验证它确实没有上传。">
+<link rel="canonical" href="https://tools.toolona.com/privacy/">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/ui.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="本地工具">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="隐私说明 · 你的文件到底去了哪里">
+<meta property="og:description" content="没有接收文件的服务器。文件在浏览器内存里处理完就回你的磁盘，刷新即清空。附你自己验证的步骤。">
+<meta property="og:url" content="https://tools.toolona.com/privacy/">
+<meta property="og:image" content="https://tools.toolona.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tools.toolona.com/assets/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "隐私说明",
+  "description": "说明本站工具如何处理用户文件与文本，以及如何自行验证没有任何上传行为。",
+  "inLanguage": "zh-CN",
+  "isPartOf": { "@type": "WebSite", "name": "本地工具", "url": "https://tools.toolona.com/" }
+}
+</script>
+</head>
+<body>
+<div class="wrap narrow">
+
+  <div class="head">
+    <div>
+      <a class="backlink" href="../"><span>←</span>全部工具</a>
+      <h1>隐私说明</h1>
+      <p>你的文件、文本、以及访问记录，到底发生了什么。能验证的地方都写清怎么验证。</p>
+    </div>
+    <div class="privacy"><span class="dot"></span>没有接收文件的服务器</div>
+  </div>
+
+  <div class="prose">
+
+    <h2>一句话结论</h2>
+    <p>这个站点没有能接收你文件的服务器。所有处理都在你自己的浏览器里完成，关掉网络一样能用。</p>
+
+    <h2>你的文件去了哪里</h2>
+    <ul>
+      <li><b>读进内存</b>：你选中的文件由浏览器读进页面内存，处理也在内存里做完。</li>
+      <li><b>写回你的磁盘</b>：结果是浏览器自己触发的下载，存到你电脑上，不经过任何中转。</li>
+      <li><b>不上传</b>：页面里没有任何上传接口。唯一会额外下载的是 PDF 工具用到的那份引擎代码，
+        它不是你的文件，而且只在第一次真正处理 PDF 时才下载。</li>
+      <li><b>不存本地</b>：不用 Cookie、localStorage、IndexedDB 保存你的内容。脱敏工具的映射表也只存在内存里，
+        要不要留下来由你自己决定（下载 CSV）。</li>
+      <li><b>刷新即清空</b>：不是「我们承诺删除」，而是从来没离开过你的电脑。</li>
+    </ul>
+
+    <h2>站点本身跑在哪</h2>
+    <p>页面是纯静态文件，托管在 GitHub Pages（GitHub / 微软的基础设施）。作为托管方，它会记录常规访问日志：
+      来源 IP、时间、User-Agent、请求的路径。</p>
+    <p>这些属于托管层面的记录，与本站代码无关，<b>仓库所有者拿不到</b>（GitHub Pages 不向仓库提供访问日志）。
+      换句话说：我们自己也没有能力看到谁来过、传了什么 —— 后者本来就不存在。</p>
+
+    <h2>没有统计脚本，没有广告脚本，没有 Cookie</h2>
+    <ul>
+      <li>页面不加载任何第三方脚本：没有 Google Analytics、没有百度统计、没有广告代码。</li>
+      <li>字体用你系统自带的，不请求外部字体服务；图标和样式都是自己写的。</li>
+      <li><b>怎么验证</b>：F12 → Network 面板，按 Domain 排序。除了本站域名，不应该出现别的域名。</li>
+      <li>如果以后要加（比如为了知道到底有没有人在用），会先在这一页写清楚加了什么、收集什么，
+        而不是先加上再补说明。</li>
+    </ul>
+
+    <h2>第三方代码</h2>
+    <ul>
+      <li><code>pdf-lib</code>（MIT 许可）：PDF 工具的合并与拆分引擎。只在第一次处理 PDF 时加载，
+        文件来自本站，不从任何 CDN 拉取。</li>
+      <li>其余全部是自己写的原生 JavaScript，没有框架、没有构建步骤，浏览器直接执行。</li>
+    </ul>
+
+    <h2>你自己怎么验证</h2>
+    <ol>
+      <li>按 F12 打开开发者工具，切到 <b>Network（网络）</b> 面板，勾上 Preserve log。</li>
+      <li>拖一个文件进去，点生成或下载。</li>
+      <li>看列表：不应该出现任何一条携带你文件内容的请求。处理前后的请求数应该是一样的。</li>
+      <li>更彻底的做法：切成 <b>Offline</b>（或直接断网）后刷新页面，功能照样完整可用。</li>
+      <li>再彻底一点：把源码 clone 下来读完再信。仓库地址在
+        <a href="../about/">关于</a>页。</li>
+    </ol>
+
+    <h2>必须说清楚的三件事</h2>
+    <ul>
+      <li><b>本地处理不等于设备绝对安全。</b>浏览器扩展、输入法、剪贴板同步、系统录屏都在这个页面之外，
+        它们能否看到内容不由本页决定。在公共电脑上处理敏感材料，风险不在这个网站。</li>
+      <li><b>映射表 CSV 是敏感数据。</b>用「占位符」方式脱敏后导出的映射表里是明文对应关系，
+        泄露它就等于泄露原文。别和脱敏后的文件放在一起，也别一起发出去。</li>
+      <li><b>这里降低的是「把文件交给陌生服务器」的风险</b>，不降低「设备被入侵」「文件被同事看到」这类风险。</li>
+    </ul>
+
+    <hr class="hr">
+    <p class="lede">最后更新：2026-11-10。这一页会随功能变化一并更新；如果哪天加了统计或广告，会写在上面，
+      不会悄悄改。</p>
+
+  </div>
+
+  <footer class="foot">
+    <nav>
+      <a href="../">全部工具</a>
+      <a href="../tools/pii-mask/">文本脱敏</a>
+      <a href="../tools/image-shrink/">图片压缩</a>
+      <a href="../tools/pdf-toolkit/">PDF 拆合</a>
+      <a href="../about/">关于</a>
+    </nav>
+    <span>上传 0 字节 · 无账号 · 无广告脚本</span>
+  </footer>
+
+</div>
+</body>
+</html>

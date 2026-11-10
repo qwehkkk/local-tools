@@ -460,3 +460,53 @@ a.card:hover {
   .pdfrange { order: 3; flex: 1 1 100px; width: auto; }
   .pdfact { order: 4; }
 }
+
+/* ---------- 分节标题 ---------- */
+
+/* 说明块里的小标题。原来是 <b>，现在改成 <h2>：
+   纯 <b> 对搜索引擎只是加粗，<h2> 才算结构。视觉保持一致，别让它变回大字号。 */
+.note h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: 0; }
+
+/* ---------- 页脚 ---------- */
+
+/* 页面之间的横向通路。只有「返回全部工具」时，三个工具彼此孤立，
+   爬虫也只能从首页往外走一层。 */
+.foot {
+  margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px 20px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted);
+}
+.foot nav { display: flex; gap: 18px; flex-wrap: wrap; }
+.foot a { color: var(--muted); text-decoration: none; }
+.foot a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- 正文页（隐私说明 / 关于） ---------- */
+
+.prose {
+  max-width: 780px; margin-top: 18px; padding: 24px 26px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 14px; line-height: 1.85;
+}
+.prose > :first-child { margin-top: 0; }
+.prose h2 { font-size: 16px; margin: 28px 0 8px; letter-spacing: -0.01em; }
+.prose h2 + p { margin-top: 0; }
+.prose p { margin: 0 0 10px; }
+.prose ul, .prose ol { margin: 0 0 12px; padding-left: 20px; }
+.prose li { margin: 4px 0; }
+.prose a { color: var(--accent); }
+.prose code {
+  font-family: var(--mono); font-size: 12.5px;
+  background: var(--accent-soft); padding: 1px 5px; border-radius: 4px;
+}
+.prose .lede { color: var(--muted); }
+.prose .hr { height: 1px; background: var(--border); margin: 22px 0; border: 0; }
+
+@media (max-width: 600px) {
+  .prose { padding: 18px 16px; font-size: 13.5px; }
+  .foot { justify-content: flex-start; }
+}
+
+/* 正文页收窄：让标题、正文、页脚在同一条左边线上，
+   否则 780px 的正文贴在 1180px 的容器里，右边空一大块，像是没写完。 */
+.wrap.narrow { max-width: 880px; }
+.wrap.narrow .prose { max-width: none; }

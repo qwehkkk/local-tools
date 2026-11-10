@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>关于 · 为什么把工具做成本地版</title>
+<meta name="description" content="这个站点是谁做的、为什么坚持不上传文件、有哪些做和不做的原则。含源码地址与反馈方式，方便你自己核对实现。">
+<link rel="canonical" href="https://tools.toolona.com/about/">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/ui.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="本地工具">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="关于 · 为什么把工具做成本地版">
+<meta property="og:description" content="不上传不是承诺，是可以打开开发者工具当场验证的事实。这里说明为什么这么做，以及不做什么。">
+<meta property="og:url" content="https://tools.toolona.com/about/">
+<meta property="og:image" content="https://tools.toolona.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tools.toolona.com/assets/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "关于",
+  "description": "本站的来由、原则与实现方式。",
+  "inLanguage": "zh-CN",
+  "isPartOf": { "@type": "WebSite", "name": "本地工具", "url": "https://tools.toolona.com/" }
+}
+</script>
+</head>
+<body>
+<div class="wrap narrow">
+
+  <div class="head">
+    <div>
+      <a class="backlink" href="../"><span>←</span>全部工具</a>
+      <h1>关于</h1>
+      <p>为什么要把几个小工具做成本地版，以及哪些事情不做。</p>
+    </div>
+  </div>
+
+  <div class="prose">
+
+    <h2>谁在做</h2>
+    <p>一个写 C# 后端的独立开发者，业余时间做这个站。不是公司，没有团队，也没打算做成公司。</p>
+
+    <h2>为什么会有这个站</h2>
+    <p>在线工具基本都是同一个流程：上传 → 服务器处理 → 下载。便利是真的，代价也是真的 ——
+      文件离开了你的电脑，落在别人的磁盘上，之后发生什么只能听对方说。</p>
+    <p>更麻烦的是，「我们不会保存你的文件」这句话<b>没有办法验证</b>。而浏览器现在就具备足够的算力，
+      压缩图片、拆分 PDF、按规则匹配身份证号这类活，本来就不需要服务器参与。</p>
+    <p>所以这个站把顺序反过来：先保证文件不出去，再看能在本地做到什么程度。做不了的功能就不做，
+      而不是为了功能把文件送出去。</p>
+
+    <h2>三条做法上的原则</h2>
+    <ul>
+      <li><b>只做「处理」，不做「生成」。</b>本地能跑的是规则、编解码和轻量计算 —— 这类任务的结果对不对，
+        用户一眼就能看出来（图是不是变小了、PDF 页数对不对、号码有没有被遮住）。
+        生成类任务（写文案、画图）本地小模型做不好，做不好还要装作好，那是骗人。</li>
+      <li><b>宁可漏遮，不可错遮。</b>脱敏工具只识别有把握的模式：身份证号要过校验位，银行卡要过 Luhn 校验。
+        漏识别最多是没帮上忙，误遮会把正常内容毁掉 —— 后者更糟。</li>
+      <li><b>限制写在页面上，不藏起来。</b>每个工具下面都有一段「如实说明的限制」：
+        不支持 HEIC、GIF 只处理第一帧、加密 PDF 明确拒绝而不是假装成功。提前说清楚，比事后解释便宜。</li>
+    </ul>
+
+    <h2>不做什么</h2>
+    <ul>
+      <li>不做需要上传才能实现的功能。这条没有例外。</li>
+      <li>不要账号、不要登录、不收钱。域名一年几十块，自己扛得住。</li>
+      <li>不放广告脚本。<b>现在没有任何统计和广告代码</b>（见 <a href="../privacy/">隐私说明</a>）。
+        如果哪天为了覆盖成本要加，会先写在隐私说明里 —— 广告脚本意味着第三方请求，与本站在做的事直接冲突，
+        所以真要加也会优先考虑不引人第三方脚本的方式。</li>
+    </ul>
+
+    <h2>技术上的一些选择</h2>
+    <ul>
+      <li><b>原生 ES Module，零构建。</b>没有框架、没有打包器，改一行刷新就见效。静态托管即可，
+        没有服务器，也就没有「服务器上留了一份」的可能。</li>
+      <li><b>唯一第三方依赖是 pdf-lib</b>（MIT 许可，约 511 KB），只在真正处理 PDF 时才加载。
+        打开页面不会下载它。</li>
+      <li><b>验证不看页面自报的数字。</b>产物是否真的正确，靠磁盘上的文件反查：图片用 PIL 读回来看尺寸和体积，
+        PDF 用 pypdf 数页序，压缩包用 zipfile 校验完整性和中文文件名。</li>
+    </ul>
+
+    <h2>想看实现，或者发现问题</h2>
+    <p>源码在这里，可以自己核对有没有上传请求，也可以直接读完再决定信不信：</p>
+    <ul>
+      <li>仓库：<a href="https://github.com/qwehkkk/local-tools" rel="noopener">github.com/qwehkkk/local-tools</a></li>
+      <li>反馈：<a href="https://github.com/qwehkkk/local-tools/issues" rel="noopener">提一个 Issue</a>
+        —— 识别漏了哪类敏感信息、哪个文件处理出错，带上例子最有用。</li>
+    </ul>
+
+    <hr class="hr">
+    <p class="lede">最后更新：2026-11-10</p>
+
+  </div>
+
+  <footer class="foot">
+    <nav>
+      <a href="../">全部工具</a>
+      <a href="../tools/pii-mask/">文本脱敏</a>
+      <a href="../tools/image-shrink/">图片压缩</a>
+      <a href="../tools/pdf-toolkit/">PDF 拆合</a>
+      <a href="../privacy/">隐私说明</a>
+    </nav>
+    <span>上传 0 字节 · 无账号 · 无广告脚本</span>
+  </footer>
+
+</div>
+</body>
+</html>

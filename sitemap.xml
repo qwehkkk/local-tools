@@ -7,10 +7,16 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://tools.toolona.com/tools/pii-mask/</loc>
+    <loc>https://tools.toolona.com/about/</loc>
     <lastmod>2026-11-10</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://tools.toolona.com/privacy/</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
   </url>
   <url>
     <loc>https://tools.toolona.com/tools/image-shrink/</loc>
@@ -20,6 +26,12 @@
   </url>
   <url>
     <loc>https://tools.toolona.com/tools/pdf-toolkit/</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tools.toolona.com/tools/pii-mask/</loc>
     <lastmod>2026-11-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

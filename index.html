@@ -4,10 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>本地工具 · 文件不上传，直接在浏览器里处理</title>
-<meta name="description" content="一组在浏览器本地运行的小工具：脱敏、去水印、格式转换等。文件不上传服务器，断网也能用，打开开发者工具就能验证。">
+<meta name="description" content="三个在浏览器本地运行的小工具：文本脱敏、图片压缩、PDF 合并拆分。文件不上传服务器，断网也能用，打开开发者工具就能验证。">
 <link rel="canonical" href="https://tools.toolona.com/">
 <meta name="robots" content="index, follow">
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="./assets/ui.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="本地工具">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="本地工具 · 文件不上传，直接在浏览器里处理">
+<meta property="og:description" content="文本脱敏、图片压缩、PDF 合并拆分，全部在你的浏览器里完成。上传 0 字节，断网可用。">
+<meta property="og:url" content="https://tools.toolona.com/">
+<meta property="og:image" content="https://tools.toolona.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tools.toolona.com/assets/og.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -63,13 +75,24 @@
   </div>
 
   <div class="note">
-    <b>为什么做成「本地」而不是普通在线工具：</b>
+    <h2>为什么做成「本地」而不是普通在线工具</h2>
     <ul>
       <li>普通在线工具，你粘贴一次身份证号，它就已经在别人的服务器日志里了 —— 哪怕承诺「不保存」。</li>
       <li>这里的所有处理都在你的浏览器内存里完成，<b>网络面板里不会出现任何一条携带你文件的请求</b>。</li>
       <li>代价是能力有限：本地能跑的多是规则、编解码和轻量模型，做不了大模型那种复杂推理。</li>
     </ul>
   </div>
+
+  <footer class="foot">
+    <nav>
+      <a href="./tools/pii-mask/">文本脱敏</a>
+      <a href="./tools/image-shrink/">图片压缩</a>
+      <a href="./tools/pdf-toolkit/">PDF 拆合</a>
+      <a href="./privacy/">隐私说明</a>
+      <a href="./about/">关于</a>
+    </nav>
+    <span>上传 0 字节 · 无账号 · 无广告脚本</span>
+  </footer>
 
 </div>
 </body>

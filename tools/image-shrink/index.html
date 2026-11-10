@@ -7,7 +7,19 @@
 <meta name="description" content="在浏览器里批量压缩图片、转成 WebP。图片不上传到任何服务器，断网也能用，打开开发者工具的网络面板就能验证。">
 <link rel="canonical" href="https://tools.toolona.com/tools/image-shrink/">
 <meta name="robots" content="index, follow">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../../assets/ui.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="本地工具">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="本地图片压缩 · 批量转 WebP，图片不上传">
+<meta property="og:description" content="批量压缩图片、转 WebP、限制最大边长、指定目标体积。图片不离开你的电脑。">
+<meta property="og:url" content="https://tools.toolona.com/tools/image-shrink/">
+<meta property="og:image" content="https://tools.toolona.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tools.toolona.com/assets/og.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -103,13 +115,13 @@
   </div>
 
   <div class="note">
-    <b>怎么验证图片真的没上传：</b>按 F12 打开开发者工具 → 切到 Network（网络）面板 → 拖入一张图片。
+    <h2>怎么验证图片真的没上传</h2>按 F12 打开开发者工具 → 切到 Network（网络）面板 → 拖入一张图片。
     你会看到面板里没有任何一条由这张图片产生的请求。右上角的计数也是同一个意思，但它只是页面自己数自己，
     真正可信的是 Network 面板。断网状态下这个页面同样能完整工作。
   </div>
 
   <div class="note">
-    <b>几件如实说明的限制：</b>
+    <h2>几件如实说明的限制</h2>
     <ul>
       <li><b>HEIC / HEIF 不支持</b>（iPhone 的默认格式）。浏览器本身解不了，需要先在手机或系统里转成 JPG。</li>
       <li><b>GIF 动图只处理第一帧</b>，动画会丢失。要做动图请另找工具。</li>
@@ -121,9 +133,19 @@
   </div>
 
   <div class="note">
-    <b>为什么不做上传：</b>图片里最常见的就是人脸、证件、家庭住址、车牌。上传到服务器再「承诺不留存」，
+    <h2>为什么不做上传</h2>图片里最常见的就是人脸、证件、家庭住址、车牌。上传到服务器再「承诺不留存」，
     和压根不上传是两件事 —— 前者依赖对方守规矩，后者不依赖任何人的承诺。
   </div>
+
+  <footer class="foot">
+    <nav>
+      <a href="../pii-mask/">文本脱敏</a>
+      <a href="../pdf-toolkit/">PDF 拆合</a>
+      <a href="../../privacy/">隐私说明</a>
+      <a href="../../about/">关于</a>
+    </nav>
+    <span>上传 0 字节 · 无账号 · 无广告脚本</span>
+  </footer>
 
 </div>
 

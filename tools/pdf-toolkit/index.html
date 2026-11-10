@@ -7,7 +7,19 @@
 <meta name="description" content="在浏览器里合并多个 PDF、把 PDF 拆成一页一个文件、按页码范围抽取页面。文件不上传到任何服务器，断网也能用。">
 <link rel="canonical" href="https://tools.toolona.com/tools/pdf-toolkit/">
 <meta name="robots" content="index, follow">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../../assets/ui.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="本地工具">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="本地 PDF 拆合 · 合并、拆页、抽页，文件不上传">
+<meta property="og:description" content="合并多个 PDF、拆成一页一个文件、按页码范围抽页。文件不离开你的电脑。">
+<meta property="og:url" content="https://tools.toolona.com/tools/pdf-toolkit/">
+<meta property="og:image" content="https://tools.toolona.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tools.toolona.com/assets/og.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -86,13 +98,13 @@
   </div>
 
   <div class="note">
-    <b>怎么验证 PDF 真的没上传：</b>按 F12 → Network（网络）面板 → 清空记录 → 拖入 PDF 并点「生成」。
+    <h2>怎么验证 PDF 真的没上传</h2>按 F12 → Network（网络）面板 → 清空记录 → 拖入 PDF 并点「生成」。
     你会看到列表里只有 <code>pdf-lib.esm.min.js</code> 这一条本站资源（引擎，约 511 KB，只加载一次），
     <b>没有任何一条携带你文件的请求</b>。断网后这个页面照样能完整工作 —— 这一点比任何隐私承诺都硬。
   </div>
 
   <div class="note">
-    <b>几件如实说明的限制：</b>
+    <h2>几件如实说明的限制</h2>
     <ul>
       <li><b>加密 PDF 不支持</b>（打开要密码的那种）。浏览器里没有合规的密码输入通道，会明确报错而不是假装成功。</li>
       <li><b>不保留书签、目录、表单、注释</b>。只搬页面本身，表单域和数字签名会失效。</li>
@@ -103,10 +115,20 @@
   </div>
 
   <div class="note">
-    <b>为什么值得做成本地版：</b>合同、病历、工资单、身份证扫描件是最常被合并和拆分的 PDF。
+    <h2>为什么值得做成本地版</h2>合同、病历、工资单、身份证扫描件是最常被合并和拆分的 PDF。
     现有在线工具几乎都要你先上传 —— 等于把最不该外发的东西先发给陌生人，再听对方承诺「24 小时后删除」。
     这里不依赖任何人的承诺。
   </div>
+
+  <footer class="foot">
+    <nav>
+      <a href="../pii-mask/">文本脱敏</a>
+      <a href="../image-shrink/">图片压缩</a>
+      <a href="../../privacy/">隐私说明</a>
+      <a href="../../about/">关于</a>
+    </nav>
+    <span>上传 0 字节 · 无账号 · 无广告脚本</span>
+  </footer>
 
 </div>
 

@@ -7,10 +7,19 @@
 <meta name="description" content="免费在线脱敏工具，自动识别身份证号、手机号、银行卡、邮箱、地址、车牌等敏感信息并打码。支持导出映射表、随时还原。全程在你的浏览器内完成，文本不上传、不联网、关闭网络也能用。">
 <link rel="canonical" href="https://tools.toolona.com/tools/pii-mask/">
 <meta name="robots" content="index, follow">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../assets/ui.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="本地工具">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:title" content="本地脱敏工具 · 敏感信息自动打码，可还原">
 <meta property="og:description" content="身份证、手机号、银行卡、地址一键打码，并生成映射表，随时还原。文本不离开你的电脑。">
-<meta property="og:type" content="website">
-<link rel="stylesheet" href="../../assets/ui.css">
+<meta property="og:url" content="https://tools.toolona.com/tools/pii-mask/">
+<meta property="og:image" content="https://tools.toolona.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tools.toolona.com/assets/og.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -107,7 +116,7 @@
     </details>
 
     <div class="note">
-      <b>关于准确率，说清楚比说好听重要：</b>
+      <h2>关于准确率，说清楚比说好听重要</h2>
       <ul>
         <li><b>能可靠识别</b>：身份证号（带校验位验证）、手机号、银行卡号（Luhn 校验）、统一社会信用代码、邮箱、车牌、IP、地址、带「订单号/账号」等关键词的编号。</li>
         <li><b>只有上下文才识别</b>：姓名需要前面有「姓名／甲方／收件人／患者」这类字段名。裸人名（例如正文里随机出现的「王小明」）<b>不会</b>被自动标记 —— 强行识别会误伤大量正常词汇，请在脱敏后自己扫一眼。</li>
@@ -117,7 +126,7 @@
     </div>
 
     <div class="note">
-      <b>怎么验证它真的没上传：</b>
+      <h2>怎么验证它真的没上传</h2>
       按 F12 打开开发者工具 → Network 面板 → 在左边粘贴内容。你会看到面板里<b>没有任何一条因为你输入而产生的请求</b>（页面加载时的 HTML/CSS/JS 除外）。右上角那个计数就是本页脚本发出的请求数，实现上直接接管了 <code>fetch</code> 与 <code>XMLHttpRequest</code>。断网状态下刷新这个页面，功能完全一样。
     </div>
 
@@ -159,7 +168,7 @@
     </div>
 
     <div class="note">
-      <b>映射表从哪来：</b>
+      <h2>映射表从哪来</h2>
       <ul>
         <li>如果你还没离开这个页面，直接切到上面「脱敏」页签，映射表还在内存里，这里会自动用上。</li>
         <li>如果已经关了页面，用「导入映射表 CSV」把之前下载的文件读回来。</li>
@@ -168,6 +177,16 @@
     </div>
 
   </section>
+
+  <footer class="foot">
+    <nav>
+      <a href="../image-shrink/">图片压缩</a>
+      <a href="../pdf-toolkit/">PDF 拆合</a>
+      <a href="../../privacy/">隐私说明</a>
+      <a href="../../about/">关于</a>
+    </nav>
+    <span>上传 0 字节 · 无账号 · 无广告脚本</span>
+  </footer>
 
 </div>
 
