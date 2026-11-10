@@ -79,8 +79,9 @@ const entries = git('ls-files', '-s')
   .split('\n')
   .filter(Boolean)
   .map((line) => {
+    // 格式：100644 <sha> <stage>\t<path>
     const [meta, path] = line.split('\t');
-    const [, mode, sha] = meta.split(' ');
+    const [mode, sha] = meta.split(' ');
     return { mode, sha, path };
   });
 
@@ -113,18 +114,8 @@ async function ensureBase() {
   }
 }
 
-/** 回溯到根 commit：避免把一串中间版本留在远程历史上。 */
-async function rootOf(sha) {
-  let cur = sha;
-  for (let i = 0; i < 30; i++) {
-    const c = await api(`/repos/${OWNER}/${REPO}/git/commits/${cur}`);
-    if (!c.parents?.length) return cur;
-    cur = c.parents[0].sha;
-  }
-  return cur;
-}
-
-const parent = await rootOf(await ensureBase());
+/** 正常增量：新 commit 接在远程 HEAD 上。 */
+const parent = await ensureBase();
 
 /* ---------- blob ---------- */
 
