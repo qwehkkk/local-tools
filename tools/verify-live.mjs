@@ -144,6 +144,13 @@ await send('Runtime.enable');
 await send('Page.enable');
 await send('Network.enable');
 
+// GitHub Pages 的 HTML 带 Cache-Control: max-age=600。Chrome 的 user-data-dir 是复用的，
+// 于是「刚发布完就跑回归」会对着上一版页面断言，报出一堆看起来像线上故障、
+// 其实是缓存造成的失败（第一次遇到时白查了十分钟）。关缓存 + 强刷。
+await send('Network.setCacheDisabled', { cacheDisabled: true });
+await send('Page.reload', { ignoreCache: true });
+await sleep(200);
+
 /* ---------- 1. 首页 ---------- */
 
 console.log('\n=== 首页 ===');
