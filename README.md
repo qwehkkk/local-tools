@@ -306,7 +306,7 @@ Phase 0 实测过浏览器端跑 LLM（见 `../Phase0-实测报告.md`），结�
 
 | 位置 | 地址 | 说明 |
 | --- | --- | --- |
-| 正式站 | **https://tools.toolona.com/** | GitHub Pages，公开可访问，爬虫能进 |
+| 正式站 | **https://tools.toolona.com/** | GitHub Pages，已上线；HTTPS 证书由 GitHub 自动签发中 |
 | 仓库 | https://github.com/qwehkkk/local-tools | public，`main` 分支根目录 |
 | 内部预览 | https://local-tools.app.workbuddy.host/?sharecode=RZOBS5DDCE | 带 sharecode 的私链，403 挡住爬虫，别拿它做推广 |
 
@@ -315,22 +315,32 @@ Phase 0 实测过浏览器端跑 LLM（见 `../Phase0-实测报告.md`），结�
 ```bash
 npm run verify:all     # 本地五套验证（发布前必跑）
 git add -A && git commit -m "…"
-npm run push           # 用 GitHub API 推，代替 git push（原因见下）
+git push               # 代理正常时直接推
+npm run push           # 备选：git 协议不通时走 GitHub API
 ```
 
-**为什么不用 `git push`**：本机出网代理只放行 `api.github.com`，连 `github.com:443`
-会报 `CONNECT tunnel failed, response 502`。`tools/push-via-api.mjs` 走 Git Data API
-上传 blob → 建 tree/commit → 更新 ref，效果等价。
+**两种推送方式**：`git push` 走的是 `github.com:443`，本机代理有时会拦（`CONNECT tunnel failed, response 502`）。
+`npm run push`（`tools/push-via-api.mjs`）走 `api.github.com`，上传 blob → 建 tree/commit → 更新 ref，
+效果等价、可用性更好，但远程 commit 的 SHA 与本地不同。用 API 推过之后，若换到别的机器继续开发，
+先 `git fetch && git reset --hard origin/main` 对齐，否则 push 会被判成 non-fast-forward。
+代理正常时优先用 `git push`，SHA 一致，省掉这个步骤。
 
-代价：远程 commit 的 SHA 和本地不同（本地对象库没有那个 commit）。换到能直连的机器上
-首次 push 前先 `git fetch && git reset --hard origin/main`。远程历史被有意压成两个 commit
-（初始化 + 当前版本），中间版本不进历史。
+### DNS 与 HTTPS
 
-### DNS
+`tools.toolona.com` 已配好：Cloudflare 里一条 **CNAME → `qwehkkk.github.io`**，代理状态**仅 DNS（灰云）**。
 
-`tools.toolona.com` 需要在 Cloudflare 加一条 **CNAME → `qwehkkk.github.io`**，
-代理状态选 **仅 DNS（灰云）**。GitHub 只有在能直接解析到它的情况下才能签发 HTTPS 证书；
-证书下来后可以在 GitHub 仓库 Settings → Pages 勾选 Enforce HTTPS。
+实测解析链正确（CNAME → `qwehkkk.github.io` → `185.199.108/109/110/111.153` + IPv6），
+`toolona.com` 没有 CAA 记录，不存在阻止签发的因素。
+
+**证书由 GitHub 自动签发**，DNS 校验通过后开始，通常几分钟，最长可能到 24 小时。
+签发前访问 `https://` 会报证书错误（GitHub 返回的是它自己的证书，域名对不上），这是正常现象。
+
+证书下来后：
+
+1. 到仓库 Settings → Pages 勾选 **Enforce HTTPS**（或 PUT `/repos/{owner}/{repo}/pages` 带 `https_enforced: true`）。
+2. 之后跑 `npm run verify:live` 时不带 `--ignore-cert`，能真正验证证书链。
+3. 如果超过一天还没签发，去 Settings → Pages 把自定义域删掉保存、再填回去，会重新触发申请。
+
 仓库根目录的 `CNAME` 文件（内容就是域名）不要删，删了自定义域会掉。
 
 ### 四条注意事项
